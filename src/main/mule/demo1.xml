@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c6784869-3768-43c9-9958-ea31a90041ee" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="5858a290-3cf5-4360-9705-d7785d7c6e7a" />
+	<flow name="demo1Flow" doc:id="79691324-6b50-4fb2-bdf3-660d57aa6a78" >
+		<scheduler doc:name="Scheduler" doc:id="68e228ca-de94-4cef-8b26-5230ef5b5206" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="1cb2d5b6-9330-4822-a5ea-e5fb0b1ab39d" message="started flow"/>
+		<file:list doc:name="List" doc:id="360f72b3-e510-41d1-8453-1860b4ed00b2" config-ref="File_Config" directoryPath="C:\Users\LakshmikP\Desktop\emp">
+			<file:matcher filenamePattern="*.csv" />
+		</file:list>
+		<ee:transform doc:name="Transform Message" doc:id="1e844008-516f-4a92-97f2-4e1b07a055b9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.typedAttributes.path]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:read doc:name="Read" doc:id="9f2d6c36-4c76-427b-b53f-774b7d40066c" config-ref="File_Config" path="#[payload[0]]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="1edef37b-afc9-4dcb-a124-959739051b38" message="ended flow"/>
+	</flow>
+</mule>
